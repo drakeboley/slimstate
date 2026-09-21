@@ -1,7 +1,7 @@
 // demo/webcomponent/index.ts
-import { FeatherStateInstance } from 'featherstate';
+import { EventStateInstance } from 'event-state';
 
-const state = new FeatherStateInstance();
+const state = new EventStateInstance();
 state.createStore('count', { value: 0 });
 
 class CounterElement extends HTMLElement {

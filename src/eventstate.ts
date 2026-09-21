@@ -1,4 +1,4 @@
-export class FeatherState {
+export class EventState {
     public state = new WeakMap();
     public target = new EventTarget();
     private activeSidechains: Array<{key: string, handler: Function}> = [];

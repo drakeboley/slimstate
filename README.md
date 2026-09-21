@@ -1,10 +1,11 @@
-# ![FeatherState](/featherstate.png "FeatherState")
+# event-state
 ## Ultra-light State Management 
 
 This is a very small, event-driven barebones state management library. Very flexible, not many guardrails. 
 
 Features:
 - Extremely small and performant
+- Minimally abstracted
 - Simple API
 - Very flexible
 - Event driven
@@ -16,11 +17,12 @@ Features:
 - Web Worker mode support
 - Effect Sidechaining
 - Optional Reducers
+- Can use the EventStateEventTarget as an event bus between components (useful in React)
 
 ## How To Install
 
 ```
-npm install featherstate
+npm install event-state
 ```
 
 Demos for integrating this module with React, Angular, and Web Components are contained in the ./demo folder.
@@ -28,26 +30,26 @@ Demos for integrating this module with React, Angular, and Web Components are co
 ## How To Use (Basic)
 
 ```javascript
-import { FeatherStateInstance } from "featherstate";
+import { EventStateInstance } from "event-state";
 
-FeatherStateInstance.createStore('storeKey', {
+EventStateInstance.createStore('storeKey', {
   prop: 'value',
   prop2: 'value
 })
 // set values
-FeatherStateInstance.set('storeKey', {
+EventStateInstance.set('storeKey', {
   prop: 'newValue
 })
 //get values
-FeatherStateInstance.get('storeKey')
+EventStateInstance.get('storeKey')
 
 //sidechaining
-FeatherStateInstance.sideChainEffect('storeKey', (value) => {
+EventStateInstance.sideChainEffect('storeKey', (value) => {
   console.log(value.prop)
 })
 
 //reducer
-FeatherStateInstance.reduce('storeKey', (value) => {
+EventStateInstance.reduce('storeKey', (value) => {
   return value.prop
 })
 ```
@@ -55,37 +57,37 @@ FeatherStateInstance.reduce('storeKey', (value) => {
 ## Worker Mode
 
 ```javascript
-import { CreateFeatherStateWorker, FeatherStateEventTarget } from "featherstate";
+import { CreateEventStateWorker, EventStateEventTarget } from "event-state";
 
-const FeatherState = CreateFeatherStateWorker()
-FeatherState.createStore('storeKey', {
+const EventState = CreateEventStateWorker()
+EventState.createStore('storeKey', {
   prop: 'value',
   prop2: 'value
 })
 // set values
-FeatherStateEventTarget.addEventListener('set-storeKey', (value) => {
+EventStateEventTarget.addEventListener('set-storeKey', (value) => {
   //can do things with the value after setting here
   return value
 })
-FeatherState.set('storeKey', {
+EventState.set('storeKey', {
   prop: 'newValue
 })
 //get values
-FeatherStateEventTarget.addEventListener('get-storeKey', (value) => {
+EventStateEventTarget.addEventListener('get-storeKey', (value) => {
   //can do things with the value after getting here
   return value
 })
-FeatherState.get('storeKey')
+EventState.get('storeKey')
 //sidechaining
-FeatherState.sideChainEffect('storeKey', (value) => {
+EventState.sideChainEffect('storeKey', (value) => {
   console.log(value.prop)
 })
 //reducer
-FeatherStateEventTarget.addEventListener('reduce-storeKey', (value) => {
+EventStateEventTarget.addEventListener('reduce-storeKey', (value) => {
   //can do things with the value after setting here
   return value
 })
-FeatherState.reduce('storeKey', (value) => {
+EventState.reduce('storeKey', (value) => {
   return value.prop
 })
 ```

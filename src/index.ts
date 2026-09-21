@@ -1,13 +1,13 @@
-import { FeatherState } from "./featherstate.js"
-import { FeatherStateService } from "./featherStateService.js";
-import { useFeatherState } from "./useFeatherState.js"
-export const instance = new FeatherState();
-export const FeatherStateEventTarget = instance.target;
-export const CreateFeatherStateWorker = () => {
+import { EventState } from "./event-state.js"
+import { EventStateService } from "./eventStateService.js";
+import { useEventState } from "./useEventState.js"
+export const instance = new EventState();
+export const EventStateEventTarget = instance.target;
+export const CreateEventStateWorker = () => {
     const worker = new Worker(new URL("worker.js", import.meta.url));
     worker.onmessage = function(event) {
         const newEvent = new Event(event.data.method + '-' + event.data.key, event.data.value)
-        FeatherStateEventTarget.dispatchEvent(newEvent)
+        EventStateEventTarget.dispatchEvent(newEvent)
     };
     return {
         createStore: (key: string, value: object) => worker.postMessage({
@@ -30,12 +30,12 @@ export const CreateFeatherStateWorker = () => {
             value
         }),
         sideChainEffect: (key: string, effect: Function) => {
-            FeatherStateEventTarget.addEventListener('set-' + key, effect as EventListenerOrEventListenerObject)
+            EventStateEventTarget.addEventListener('set-' + key, effect as EventListenerOrEventListenerObject)
         },
         reduce: (key: string, reducer: Function) => {
-            FeatherStateEventTarget.addEventListener(key, (value) => {
+            EventStateEventTarget.addEventListener(key, (value) => {
                 const newEvent = new Event('reduce-' + key, reducer(value))
-                FeatherStateEventTarget.dispatchEvent(newEvent)
+                EventStateEventTarget.dispatchEvent(newEvent)
             })
             worker.postMessage({
                 method: 'get',
@@ -44,14 +44,14 @@ export const CreateFeatherStateWorker = () => {
         }
     }
 }
-export const FeatherStateInstance = instance;
+export const EventStateInstance = instance;
 export default {
-    FeatherStateInstance,
-    FeatherStateEventTarget,
+    EventStateInstance,
+    EventStateEventTarget,
     // for web worker mode
-    CreateFeatherStateWorker,
+    CreateEventStateWorker,
     // for angular
-    FeatherStateService,
+    EventStateService,
     // for react
-    useFeatherState
+    useEventState
 }
