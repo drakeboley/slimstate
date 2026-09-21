@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { createStore, set, get, deleteStore, sideChainEffect, reduce } from 'event-state';
+import { createStore, set, get, deleteStore, sideChainEffect, reduce } from 'slimstate';
 
 @Component({
   selector: 'app-root',

@@ -1,7 +1,7 @@
 // demo/webcomponent/index.ts
-import { EventStateInstance } from 'event-state';
+import { SlimStateInstance } from 'slimstate';
 
-const state = new EventStateInstance();
+const state = new SlimStateInstance();
 state.createStore('count', { value: 0 });
 
 class CounterElement extends HTMLElement {

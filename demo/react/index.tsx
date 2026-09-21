@@ -1,6 +1,6 @@
 import React from 'react';
-import { useEventState } from '../../src/useEventState.js';
-import { EventStateInstance } from '../../src/index.js';
+import { useSlimState } from '../../src/useSlimState.js';
+import { SlimStateInstance } from '../../src/index.js';
 
 const App = () => {
     // Create a store for counter if not already present
@@ -8,19 +8,19 @@ const App = () => {
         count: number
     }
     let setCounter: Function
-    const EventStateHook = useEventState('counter', { count: 0 }) as [typeof counter, Function, Function];
-    if (EventStateHook.length <= 1) return null;
-    [counter, setCounter] = EventStateHook;
+    const SlimStateHook = useSlimState('counter', { count: 0 }) as [typeof counter, Function, Function];
+    if (SlimStateHook.length <= 1) return null;
+    [counter, setCounter] = SlimStateHook;
 
     // Side effect that logs changes to both counter and message stores
     React.useEffect(() => {
         const logHandler = (e: Event) => {
             console.log(`Event ${e.type} fired with detail`, e);
         };
-        EventStateInstance.sideChainEffect(['counter', 'message'], logHandler);
+        SlimStateInstance.sideChainEffect(['counter', 'message'], logHandler);
         return () => {
             // Cleanup listeners when component unmounts
-            EventStateInstance.deleteStore('counter');
+            SlimStateInstance.deleteStore('counter');
         };
     }, []);
 
@@ -28,7 +28,7 @@ const App = () => {
 
     return (
         <div style={{ padding: '1rem' }}>
-            <h2>EventState Demo</h2>
+            <h2>SlimState Demo</h2>
             <p>Count: {counter.count}</p>
             <button onClick={increment}>Increment</button>{' '}
         </div>

@@ -1,13 +1,13 @@
-import { EventState } from "./event-state.js"
-import { EventStateService } from "./eventStateService.js";
-import { useEventState } from "./useEventState.js"
-export const instance = new EventState();
-export const EventStateEventTarget = instance.target;
-export const CreateEventStateWorker = () => {
+import { SlimState } from "./slimstate.js"
+import { SlimStateService } from "./slimStateService.js";
+import { useSlimState } from "./useSlimState.js"
+export const instance = new SlimState();
+export const SlimStateEventTarget = instance.target;
+export const CreateSlimStateWorker = () => {
     const worker = new Worker(new URL("worker.js", import.meta.url));
     worker.onmessage = function(event) {
         const newEvent = new Event(event.data.method + '-' + event.data.key, event.data.value)
-        EventStateEventTarget.dispatchEvent(newEvent)
+        SlimStateEventTarget.dispatchEvent(newEvent)
     };
     return {
         createStore: (key: string, value: object) => worker.postMessage({
@@ -30,12 +30,12 @@ export const CreateEventStateWorker = () => {
             value
         }),
         sideChainEffect: (key: string, effect: Function) => {
-            EventStateEventTarget.addEventListener('set-' + key, effect as EventListenerOrEventListenerObject)
+            SlimStateEventTarget.addEventListener('set-' + key, effect as EventListenerOrEventListenerObject)
         },
         reduce: (key: string, reducer: Function) => {
-            EventStateEventTarget.addEventListener(key, (value) => {
+            SlimStateEventTarget.addEventListener(key, (value) => {
                 const newEvent = new Event('reduce-' + key, reducer(value))
-                EventStateEventTarget.dispatchEvent(newEvent)
+                SlimStateEventTarget.dispatchEvent(newEvent)
             })
             worker.postMessage({
                 method: 'get',
@@ -44,14 +44,14 @@ export const CreateEventStateWorker = () => {
         }
     }
 }
-export const EventStateInstance = instance;
+export const SlimStateInstance = instance;
 export default {
-    EventStateInstance,
-    EventStateEventTarget,
+    SlimStateInstance,
+    SlimStateEventTarget,
     // for web worker mode
-    CreateEventStateWorker,
+    CreateSlimStateWorker,
     // for angular
-    EventStateService,
+    SlimStateService,
     // for react
-    useEventState
+    useSlimState
 }

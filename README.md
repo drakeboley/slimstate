@@ -1,7 +1,7 @@
-# event-state
+# slimstate
 ## Ultra-light State Management 
 
-This is a very small, event-driven barebones state management library. Very flexible, not many guardrails. 
+This is a very small, slimdriven barebones state management library. Very flexible, not many guardrails. 
 
 Features:
 - Extremely small and performant
@@ -17,12 +17,12 @@ Features:
 - Web Worker mode support
 - Effect Sidechaining
 - Optional Reducers
-- Can use the EventStateEventTarget as an event bus between components (useful in React)
+- Can use the SlimStateEventTarget as an event bus between components (useful in React)
 
 ## How To Install
 
 ```
-npm install event-state
+npm install slimstate
 ```
 
 Demos for integrating this module with React, Angular, and Web Components are contained in the ./demo folder.
@@ -30,26 +30,26 @@ Demos for integrating this module with React, Angular, and Web Components are co
 ## How To Use (Basic)
 
 ```javascript
-import { EventStateInstance } from "event-state";
+import { SlimStateInstance } from "slimstate";
 
-EventStateInstance.createStore('storeKey', {
+SlimStateInstance.createStore('storeKey', {
   prop: 'value',
   prop2: 'value
 })
 // set values
-EventStateInstance.set('storeKey', {
+SlimStateInstance.set('storeKey', {
   prop: 'newValue
 })
 //get values
-EventStateInstance.get('storeKey')
+SlimStateInstance.get('storeKey')
 
 //sidechaining
-EventStateInstance.sideChainEffect('storeKey', (value) => {
+SlimStateInstance.sideChainEffect('storeKey', (value) => {
   console.log(value.prop)
 })
 
 //reducer
-EventStateInstance.reduce('storeKey', (value) => {
+SlimStateInstance.reduce('storeKey', (value) => {
   return value.prop
 })
 ```
@@ -57,37 +57,37 @@ EventStateInstance.reduce('storeKey', (value) => {
 ## Worker Mode
 
 ```javascript
-import { CreateEventStateWorker, EventStateEventTarget } from "event-state";
+import { CreateSlimStateWorker, SlimStateEventTarget } from "slimstate";
 
-const EventState = CreateEventStateWorker()
-EventState.createStore('storeKey', {
+const SlimState = CreateSlimStateWorker()
+SlimState.createStore('storeKey', {
   prop: 'value',
   prop2: 'value
 })
 // set values
-EventStateEventTarget.addEventListener('set-storeKey', (value) => {
+SlimStateEventTarget.addEventListener('set-storeKey', (value) => {
   //can do things with the value after setting here
   return value
 })
-EventState.set('storeKey', {
+SlimState.set('storeKey', {
   prop: 'newValue
 })
 //get values
-EventStateEventTarget.addEventListener('get-storeKey', (value) => {
+SlimStateEventTarget.addEventListener('get-storeKey', (value) => {
   //can do things with the value after getting here
   return value
 })
-EventState.get('storeKey')
+SlimState.get('storeKey')
 //sidechaining
-EventState.sideChainEffect('storeKey', (value) => {
+SlimState.sideChainEffect('storeKey', (value) => {
   console.log(value.prop)
 })
 //reducer
-EventStateEventTarget.addEventListener('reduce-storeKey', (value) => {
+SlimStateEventTarget.addEventListener('reduce-storeKey', (value) => {
   //can do things with the value after setting here
   return value
 })
-EventState.reduce('storeKey', (value) => {
+SlimState.reduce('storeKey', (value) => {
   return value.prop
 })
 ```
