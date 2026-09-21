@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",       // 👈 All compiled files will go into the 'dist' folder
+    "rootDir": "./src"        // 👈 Explicitly pairs with outDir to enforce structure
+  },
+  "include": ["src/**/*"]
+}

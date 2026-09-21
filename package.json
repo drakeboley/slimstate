@@ -1,0 +1,27 @@
+{
+  "name": "featherstate",
+  "version": "1.0.0",
+  "description": "A very light weight state client.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc --build"
+  },
+  "keywords": [
+    "state",
+    "flux",
+    "redux",
+    "management",
+    "ngx"
+  ],
+  "author": "Drake Boley",
+  "license": "MIT",
+  "dependencies": {
+    "@angular/core": "^22.1.7"
+  },
+  "devDependencies": {
+    "@types/angular": "^1.8.9",
+    "typescript": "^7.0.2"
+  }
+}
