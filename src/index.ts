@@ -1,13 +1,15 @@
-import { SlimState } from "./slimstate.js"
+import { SlimState } from "./slimstate.js";
 import { SlimStateService } from "./slimStateService.js";
-import { useSlimState } from "./useSlimState.js"
+import { useSlimState } from "./useSlimState.js";
+
 export const instance = new SlimState();
 export const SlimStateEventTarget = instance.target;
+
 export const CreateSlimStateWorker = () => {
     const worker = new Worker(new URL("worker.js", import.meta.url));
     worker.onmessage = function(event) {
-        const newEvent = new Event(event.data.method + '-' + event.data.key, event.data.value)
-        SlimStateEventTarget.dispatchEvent(newEvent)
+        const newEvent = new CustomEvent(event.data.method + '-' + event.data.key, { detail: event.data.value });
+        SlimStateEventTarget.dispatchEvent(newEvent);
     };
     return {
         createStore: (key: string, value: object) => worker.postMessage({
@@ -15,32 +17,32 @@ export const CreateSlimStateWorker = () => {
             key,
             value
         }),
-        deleteStore: (key: string, value: object) => worker.postMessage({
+        deleteStore: (key: string) => worker.postMessage({
             method: 'delete',
-            key,
-            value
+            key
         }),
         get: (key: string) => worker.postMessage({
             method: 'get',
             key
         }),
         set: (key: string, value: object) => worker.postMessage({
-            method: 'delete',
+            method: 'set',
             key,
             value
         }),
-        sideChainEffect: (key: string, effect: Function) => {
-            SlimStateEventTarget.addEventListener('set-' + key, effect as EventListenerOrEventListenerObject)
+        sideChainEffect: (key: string, effect: (value: any) => void) => {
+            SlimStateEventTarget.addEventListener('set-' + key, (e: Event) => effect((e as CustomEvent).detail));
         },
         reduce: (key: string, reducer: Function) => {
-            SlimStateEventTarget.addEventListener(key, (value) => {
-                const newEvent = new Event('reduce-' + key, reducer(value))
-                SlimStateEventTarget.dispatchEvent(newEvent)
-            })
+            SlimStateEventTarget.addEventListener('get-' + key, (e: Event) => {
+                const value = (e as CustomEvent).detail;
+                const newEvent = new CustomEvent('reduce-' + key, { detail: reducer(value) });
+                SlimStateEventTarget.dispatchEvent(newEvent);
+            });
             worker.postMessage({
                 method: 'get',
                 key
-            })
+            });
         }
     }
 }
@@ -54,4 +56,4 @@ export default {
     SlimStateService,
     // for react
     useSlimState
-}
+};

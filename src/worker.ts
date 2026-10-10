@@ -1,23 +1,26 @@
-self.importScripts("./slimstate.js");
+import { SlimState } from "./slimstate.js";
 const slimState = new SlimState();
 
 self.onmessage = function(event) {
-    console.log("Worker received data:", event.data);
     switch (event.data.method) {
         case 'get':
-            return self.postMessage(slimState.state[event.data.key]);
+            return self.postMessage({ method: 'get', key: event.data.key, value: slimState.get(event.data.key) });
         case 'set':
-            const handler = () => {
-                self.postMessage({key: event.data.key, value: slimState.state[event.data.key]});
-                slimState.target.removeEventListener(event.data.key, handler)
+            {
+                const handler = (e: Event) => {
+                    const customEvent = e as CustomEvent;
+                    self.postMessage({ method: 'set', key: event.data.key, value: slimState.get(event.data.key) });
+                    slimState.target.removeEventListener(event.data.key, handler);
+                };
+                slimState.target.addEventListener(event.data.key, handler);
+                slimState.set(event.data.key, event.data.value, true);
+                return;
             }
-            slimState.target.addEventListener(event.data.key, handler)
-            return slimState[event.data.key] = {...slimState[event.data.key], ...event.data.value};
         case 'create':
-            slimState.createStore(event.data.key)
-            return self.postMessage({key: event.data.key, value: slimState.state[event.data.key]});
+            slimState.createStore(event.data.key, event.data.value || {});
+            return self.postMessage({ method: 'create', key: event.data.key, value: slimState.get(event.data.key) });
         case 'delete':
-            slimState.createStore(event.data.key)
-            return self.postMessage({key: event.data.key, value: slimState.state[event.data.key]});
+            slimState.deleteStore(event.data.key);
+            return self.postMessage({ method: 'delete', key: event.data.key });
     }
 };

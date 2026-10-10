@@ -1,30 +1,35 @@
 import { Injectable, signal } from '@angular/core';
-import { SlimStateInstance } from "./index.js"
+import { SlimStateInstance } from "./index.js";
+
 @Injectable({
   providedIn: 'root' 
 })
 export class SlimStateService {
-  public state = signal((SlimStateInstance as any).state)
+  // Using a signal that holds a Map or object depending on what the user prefers
+  // But wait, the original code had (SlimStateInstance as any).state which is the Map.
+  // We can just keep a reference to instance
   public instance = SlimStateInstance;
-  public reduce = this.instance.reduce;
-  public sideChainEffect = this.instance.sideChainEffect; 
+  public state = signal(new Map(this.instance.state));
+
+  public reduce = this.instance.reduce.bind(this.instance);
+  public sideChainEffect = this.instance.sideChainEffect.bind(this.instance);
 
   get(key: string): any {
-    return (this.state as any)[key];
+    return this.instance.get(key);
   }
 
   set(key: string, value: any): void {
-    const newState = {...(SlimStateInstance as any)[key], ...value};
-    this.state.set(newState)
+    this.instance.set(key, value);
+    this.state.set(new Map(this.instance.state));
   }
 
   public createStore (key: string, initialValue: any) {
-    SlimStateInstance.createStore(key, initialValue)
-    this.state.set(SlimStateInstance.state)
+    this.instance.createStore(key, initialValue);
+    this.state.set(new Map(this.instance.state));
   }
   
   public deleteStore (key: string) {
-    (SlimStateInstance as any)[key].deleteStore(key)
-    this.state.set(SlimStateInstance.state)
+    this.instance.deleteStore(key);
+    this.state.set(new Map(this.instance.state));
   }
 }
