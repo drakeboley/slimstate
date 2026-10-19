@@ -5,9 +5,6 @@ import { SlimStateInstance } from "./index.js";
   providedIn: 'root' 
 })
 export class SlimStateService {
-  // Using a signal that holds a Map or object depending on what the user prefers
-  // But wait, the original code had (SlimStateInstance as any).state which is the Map.
-  // We can just keep a reference to instance
   public instance = SlimStateInstance;
   public state = signal(new Map(this.instance.state));
 
@@ -23,12 +20,12 @@ export class SlimStateService {
     this.state.set(new Map(this.instance.state));
   }
 
-  public createStore (key: string, initialValue: any) {
+  public createStore(key: string, initialValue: any): void {
     this.instance.createStore(key, initialValue);
     this.state.set(new Map(this.instance.state));
   }
   
-  public deleteStore (key: string) {
+  public deleteStore(key: string): void {
     this.instance.deleteStore(key);
     this.state.set(new Map(this.instance.state));
   }

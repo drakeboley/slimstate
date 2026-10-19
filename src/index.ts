@@ -4,6 +4,14 @@ import { useSlimState } from "./useSlimState.js";
 
 export const instance = new SlimState();
 export const SlimStateEventTarget = instance.target;
+export const SlimStateInstance = instance;
+
+export const createStore = instance.createStore.bind(instance);
+export const set = instance.set.bind(instance);
+export const get = instance.get.bind(instance);
+export const deleteStore = instance.deleteStore.bind(instance);
+export const reduce = instance.reduce.bind(instance);
+export const sideChainEffect = instance.sideChainEffect.bind(instance);
 
 export const CreateSlimStateWorker = () => {
     const worker = new Worker(new URL("worker.js", import.meta.url));
@@ -34,26 +42,38 @@ export const CreateSlimStateWorker = () => {
             SlimStateEventTarget.addEventListener('set-' + key, (e: Event) => effect((e as CustomEvent).detail));
         },
         reduce: (key: string, reducer: Function) => {
-            SlimStateEventTarget.addEventListener('get-' + key, (e: Event) => {
-                const value = (e as CustomEvent).detail;
-                const newEvent = new CustomEvent('reduce-' + key, { detail: reducer(value) });
-                SlimStateEventTarget.dispatchEvent(newEvent);
-            });
+            // ARCH-03: Use once: true to avoid leaking listeners on repeated reduce calls
+            SlimStateEventTarget.addEventListener(
+                'get-' + key,
+                (e: Event) => {
+                    const value = (e as CustomEvent).detail;
+                    const newEvent = new CustomEvent('reduce-' + key, { detail: reducer(value) });
+                    SlimStateEventTarget.dispatchEvent(newEvent);
+                },
+                { once: true }
+            );
             worker.postMessage({
                 method: 'get',
                 key
             });
         }
-    }
-}
-export const SlimStateInstance = instance;
+    };
+};
+
+export { SlimState, SlimStateService, useSlimState };
+
 export default {
+    SlimState,
+    instance,
     SlimStateInstance,
     SlimStateEventTarget,
-    // for web worker mode
+    createStore,
+    set,
+    get,
+    deleteStore,
+    reduce,
+    sideChainEffect,
     CreateSlimStateWorker,
-    // for angular
     SlimStateService,
-    // for react
     useSlimState
 };

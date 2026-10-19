@@ -1,7 +1,7 @@
 // demo/webcomponent/index.ts
 import { SlimStateInstance } from 'slimstate';
 
-const state = new SlimStateInstance();
+const state = SlimStateInstance;
 state.createStore('count', { value: 0 });
 
 class CounterElement extends HTMLElement {

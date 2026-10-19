@@ -1,27 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SlimStateInstance } from "./index.js";
 
-export const useSlimState = (key: string, initialState: any = {}) => {
-    // We get the initial setup from createStore.
-    const [storeValue, returnFn, destroyFn] = SlimStateInstance.createStore(key, initialState);
-    const [state, setState] = useState(storeValue);
+export const useSlimState = <T extends object>(
+    key: string,
+    initialState: T = {} as T
+): [T, (value: T) => void] => {
+    const initializedRef = useRef(false);
+    const returnFnRef = useRef<(value: T) => void>(() => {});
+
+    if (!initializedRef.current) {
+        if (!SlimStateInstance.state.has(key)) {
+            const [, returnFn] = SlimStateInstance.createStore(key, initialState);
+            returnFnRef.current = returnFn;
+        } else {
+            returnFnRef.current = (val: T) => SlimStateInstance.set(key, val);
+        }
+        initializedRef.current = true;
+    }
+
+    const [state, setState] = useState<T>(() => {
+        const existing = SlimStateInstance.get<T>(key);
+        return existing !== undefined ? existing : initialState;
+    });
 
     useEffect(() => {
         const handler = (e: Event) => {
-            const customEvent = e as CustomEvent;
+            const customEvent = e as CustomEvent<T>;
             setState(customEvent.detail);
         };
-        // Listen to changes on this key
         SlimStateInstance.target.addEventListener(key, handler);
-        
+
         return () => {
             SlimStateInstance.target.removeEventListener(key, handler);
-            if (typeof destroyFn === 'function') {
-                destroyFn(key);
-            }
         };
-    }, [key, destroyFn]);
+    }, [key]);
 
-    return [state, returnFn];
-}
+    return [state, returnFnRef.current];
+};
+
 export default useSlimState;
