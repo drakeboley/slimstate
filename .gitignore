@@ -1,2 +1,7 @@
 dist
 node_modules
+*.gguf
+node_modules/
+__pycache__/
+cpp/hi.hpp
+*.pth
